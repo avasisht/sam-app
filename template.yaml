@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An Amazon Connect Lambda function.
+Parameters: 
+  Origin:
+    Description: Approved Origin for amazon connect instance
+    Type: String
+    Default: https://www.example.com
+  Identity:
+    Description: Amazon Connect Instance Identity Provider 
+    Type: String
+    AllowedValues:
+      - CONNECT_MANAGED
+      - SAML
+    Default: CONNECT_MANAGED
+  InstanceName:
+    Description: Amazon connect Instance Name
+    Type: String
+    Default: connect-instance-name
+Resources:
+  ConnectFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda.lambda_handler
+      Runtime: python3.9
+      CodeUri: srcin/
+      Description: An Amazon Connect Lambda function.
+      MemorySize: 128
+      Timeout: 300
+      Environment:
+        Variables: 
+          ConnectInstanceName: !Ref InstanceName
+          Identity: !Ref Identity
+          Origin: !Ref Origin
+      Policies:
+        - Statement:
+          - Sid: IAMPutRolePolicy
+            Effect: Allow
+            Action:
+            - iam:PutRolePolicy
+            Resource: '*'
+        - AmazonS3FullAccess
+        - AmazonConnect_FullAccess
+      # AutoPublishAlias: live
+      # DeploymentPreference:
+      #   Type: CodeDeployDefault.LambdaCanary10Percent5Minutes
+      #   Hooks:
+      #     PreTraffic:
+      #       Ref: PreTraffic
+      #     PostTraffic:
+      #       Ref: PostTraffic
+      #   TriggerConfigurations:
+      #     - TriggerEvents:
+      #         - DeploymentSuccess
+      #         - DeploymentFailure
+      #       TriggerName: TestTrigger
+      #       TriggerTargetArn:
+      #         Ref: mySNSTopic
+
+
+
+
+          
